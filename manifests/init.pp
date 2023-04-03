@@ -52,6 +52,10 @@
 #   Refer to PostgreSQL configuration settings replication username
 # @param replication_password
 #   Refer to PostgreSQL configuration settings replication password
+# @param rewind_username
+#   Refer to PostgreSQL configuration settings rewind username
+# @param rewind_password
+#   Refer to PostgreSQL configuration settings rewind password
 # @param callback_on_reload
 #   Refer to PostgreSQL configuration settings callbacks `on_reload`
 # @param callback_on_restart
@@ -240,6 +244,8 @@
 #   Patroni service enable property
 # @param custom_pip_provider
 #   Use custom pip path when installing pip packages
+# @param tags
+#   Patroni tags
 class patroni (
 
   # Global Settings
@@ -273,9 +279,11 @@ class patroni (
 
   # PostgreSQL Settings
   String $superuser_username = 'postgres',
-  String $superuser_password = 'changeme',
+  Optional[String] $superuser_password = undef,
   String $replication_username = 'rep_user',
-  String $replication_password = 'changeme',
+  Optional[String] $replication_password = undef,
+  Optional[String] $rewind_username = undef,
+  Optional[String] $rewind_password = undef,
   Variant[Undef,String] $callback_on_reload = undef,
   Variant[Undef,String] $callback_on_restart = undef,
   Variant[Undef,String] $callback_on_role_change = undef,
@@ -296,8 +304,9 @@ class patroni (
   Integer $pgsql_pg_ctl_timeout = 60,
   Boolean $pgsql_use_pg_rewind = true,
   Boolean $pgsql_remove_data_directory_on_rewind_failure = false,
-  Array[Hash] $pgsql_replica_method = [],
+  Hash $pgsql_replica_method = {},
   Boolean $manage_postgresql_repo = true,
+  Hash $tags = {},
 
   # Consul Settings
   Boolean $use_consul = false,
@@ -559,14 +568,25 @@ class patroni (
   }
 
   service { 'patroni':
-    ensure => $service_ensure,
-    name   => $service_name,
-    enable => $service_enable,
+    ensure  => $service_ensure,
+    name    => $service_name,
+    enable  => $service_enable,
+    restart => "/usr/bin/systemctl reload ${service_name}",
   }
 
   $patronictl = "${install_dir}/bin/patronictl"
   patronictl_config { 'puppet':
     path   => $patronictl,
     config => $config_path,
+  }
+
+  file { '/usr/bin/patronictl':
+    ensure => 'link',
+    target => $patronictl,
+  }
+
+  file_line { 'patroni config file as ENV':
+    path      => '/home/postgres/.bashrc',
+    line      => "export PATRONICTL_CONFIG_FILE=${config_path}",
   }
 }

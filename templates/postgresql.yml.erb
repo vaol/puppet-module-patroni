@@ -2,6 +2,13 @@ scope: <%= @scope %>
 namespace: <%= @namespace %>
 name: <%= @hostname %>
 
+log:
+  level: INFO
+  dir: /var/log/patroni
+  file_size: 50000000 # Size of log file which triggers a log rotation
+  file_num: 10 # Number of logs to retain
+  dateformat: '%Y-%m-%d %H:%M:%S'
+
 bootstrap:
   dcs:
     ttl: <%= @dcs_ttl %>
@@ -14,6 +21,7 @@ bootstrap:
     postgresql:
       use_pg_rewind: <%= @dcs_postgresql_use_pg_rewind ? 'true' : 'false' %>
       use_slots: <%= @dcs_postgresql_use_slots ? 'true' : 'false' %>
+      keep_existing_recovery_conf: true
 <% unless @dcs_postgresql_recovery_conf.empty? -%>
       recovery_conf:
 <% @dcs_postgresql_recovery_conf.each do |name,val| -%>
@@ -79,10 +87,21 @@ postgresql:
   authentication:
     superuser:
       username: <%= @superuser_username %>
+<% if @superuser_password != nil -%>
       password: <%= @superuser_password %>
+<% end -%>
     replication:
       username: <%= @replication_username %>
+<% if @replication_password != nil -%>
       password: <%= @replication_password %>
+<% end -%>
+<% if @rewind_username != nil -%>
+    rewind:
+      username: <%= @rewind_username %>
+<% if @rewind_password != nil -%>
+      password: <%= @rewind_password %>
+<% end -%>
+<% end -%>
 <% unless @callback_on_reload == nil && @callback_on_restart == nil && @callback_on_role_change == nil && @callback_on_start == nil && @callback_on_stop == nil -%>
   callbacks:
 <% if @callback_on_reload != nil -%>
@@ -129,11 +148,10 @@ postgresql:
 <% end -%>
 <% end -%>
 <% unless @pgsql_replica_method.empty? -%>
-  replica_method:
 <% @pgsql_replica_method.each do |name,settings| -%>
-    <%= name -%>:
+  <%= name -%>:
 <% settings.each do |setname,setval| -%>
-      <%= setname -%>: <%= setval %>
+    <%= setname -%>: <%= setval %>
 <% end -%>
 <% end -%>
 <% end -%>
@@ -279,5 +297,12 @@ consul:
 <% end -%>
 <% if @consul_service_check_interval != nil -%>
   service_check_interval: <%= @consul_service_check_interval %>
+<% end -%>
+<% end -%>
+
+<% unless @tags.empty? -%>
+tags:
+<% @tags.each do |name,val| -%>
+    <%= name -%>: <%= val %>
 <% end -%>
 <% end -%>
