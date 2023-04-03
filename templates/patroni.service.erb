@@ -1,6 +1,6 @@
 [Unit]
 Description=PostgreSQL high-availability manager
-After=syslog.target
+After=syslog.target etcd.service remote-fs.target local-fs.target
 After=network-online.target
 
 [Service]
