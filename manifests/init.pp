@@ -384,8 +384,8 @@ class patroni (
   Boolean $manage_python = true,
   Enum['package','pip'] $install_method = 'pip',
   Stdlib::Absolutepath $install_dir = '/opt/app/patroni',
-  String $python_class_version = '36',
-  String $python_venv_version = '3.6',
+  String $python_class_version = '39',
+  String $python_venv_version = '3.9',
   String $config_path = '/opt/app/patroni/etc/postgresql.yml',
   String $config_owner = 'postgres',
   String $config_group = 'postgres',
@@ -470,12 +470,12 @@ class patroni (
     }
 
     if $facts['os']['family'] == 'RedHat' {
-      python::virtualenv { 'patroni':
+      python::pyvenv { 'patroni':
         version     => $python_venv_version,
         venv_dir    => $install_dir,
-        virtualenv  => 'virtualenv-3',
+        #virtualenv  => 'virtualenv-3',
         systempkgs  => true,
-        distribute  => false,
+        #distribute  => false,
         environment => ["PIP_PREFIX=${install_dir}"],
         require     => Exec['patroni-mkdir-install_dir'],
       }
@@ -512,7 +512,7 @@ class patroni (
       'environment'  => ["PIP_PREFIX=${install_dir}"],
     }
 
-    python::pip { 'psycopg2': * => $dependency_params }
+    python::pip { 'psycopg2-binary': * => $dependency_params }
 
     if $use_consul {
       python::pip { 'python-consul': * => $dependency_params }
