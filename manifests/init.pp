@@ -471,8 +471,9 @@ class patroni (
 
     if $facts['os']['family'] == 'RedHat' {
       python::pyvenv { 'patroni':
-       # version     => $python_venv_version,
-        version     => '3.11',
+        version     => $python_venv_version,
+        #To uncomment if  resolution of $python_venv_version is not working.
+        #version     => '3.11',
         venv_dir    => $install_dir,
         #virtualenv  => 'virtualenv-3',
         systempkgs  => true,
