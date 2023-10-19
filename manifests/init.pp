@@ -600,4 +600,9 @@ class patroni (
     path      => '/home/postgres/.bashrc',
     line      => "export PATRONICTL_CONFIG_FILE=${config_path}",
   }
+
+  file_line { 'patroni scope as ENV':
+    path => '/home/postgres/.bashrc',
+    line => "export PATRONI_SCOPE=${scope}",
+  }
 }
