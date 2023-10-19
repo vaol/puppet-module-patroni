@@ -569,6 +569,15 @@ class patroni (
     }
   }
 
+  file { 'patroni_log_dir':
+    ensure => 'directory',
+    path   => '/var/log/patroni',
+    owner  => 'postgres',
+    group  => 'postgres',
+    mode   => '0755',
+    before => Service['patroni'],
+  }
+
   service { 'patroni':
     ensure  => $service_ensure,
     name    => $service_name,
