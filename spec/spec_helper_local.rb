@@ -1,5 +1,3 @@
-require 'coveralls'
-Coveralls.wear!
 
 def platform_data(p, d)
   data = {
@@ -35,6 +33,13 @@ def platform_data(p, d)
       data_dir: '/var/lib/postgresql/10/main',
       bin_dir: '/usr/lib/postgresql/10/bin',
       python_venv_version: '3.6',
+      config_dir: '/etc/patroni',
+      config_path: '/etc/patroni/config.yml',
+    },
+    'Alma-9' => {
+      data_dir: '/var/lib/postgresql/15/main',
+      bin_dir: '/usr/lib/postgresql/15/bin',
+      python_venv_version: '3.12',
       config_dir: '/etc/patroni',
       config_path: '/etc/patroni/config.yml',
     },

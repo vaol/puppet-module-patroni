@@ -456,9 +456,9 @@ class patroni (
   if $install_method == 'pip' {
     if $manage_python {
       class { 'python':
-        version    => $python_class_version,
-        dev        => 'present',
-        virtualenv => 'present',
+        version => $python_class_version,
+        dev     => 'present',
+        venv    => 'present',
       }
     }
 
@@ -469,28 +469,12 @@ class patroni (
       creates => $install_dir,
     }
 
-    if $facts['os']['family'] == 'RedHat' {
-      python::pyvenv { 'patroni':
-        version     => $python_venv_version,
-        #To uncomment if  resolution of $python_venv_version is not working.
-        #version     => '3.11',
-        venv_dir    => $install_dir,
-        #virtualenv  => 'virtualenv-3',
-        systempkgs  => true,
-        #distribute  => false,
-        environment => ["PIP_PREFIX=${install_dir}"],
-        require     => Exec['patroni-mkdir-install_dir'],
-      }
-    }
-
-    if $facts['os']['family'] == 'Debian' {
-      python::pyvenv { 'patroni':
-        version     => $python_venv_version,
-        venv_dir    => $install_dir,
-        systempkgs  => true,
-        environment => ["PIP_PREFIX=${install_dir}"],
-        require     => Exec['patroni-mkdir-install_dir'],
-      }
+    python::pyvenv { 'patroni':
+      version     => $python_venv_version,
+      venv_dir    => $install_dir,
+      systempkgs  => true,
+      environment => ["PIP_PREFIX=${install_dir}"],
+      require     => Exec['patroni-mkdir-install_dir'],
     }
 
     if $custom_pip_provider {
@@ -597,8 +581,8 @@ class patroni (
   }
 
   file_line { 'patroni config file as ENV':
-    path      => '/home/postgres/.bashrc',
-    line      => "export PATRONICTL_CONFIG_FILE=${config_path}",
+    path => '/home/postgres/.bashrc',
+    line => "export PATRONICTL_CONFIG_FILE=${config_path}",
   }
 
   file_line { 'patroni scope as ENV':
