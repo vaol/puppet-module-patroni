@@ -23,6 +23,10 @@ describe 'patroni' do
         'operatingsystem'        => 'Ubuntu',
         'operatingsystemrelease' => ['18.04'],
       },
+      {
+        'operatingsystem'        => 'Alma',
+        'operatingsystemrelease' => ['9'],
+      },
     ],
   }
 
@@ -79,7 +83,7 @@ describe 'patroni' do
         is_expected.to contain_class('python').with(
           version: platform_data(platform, :python_class_version),
           dev: 'present',
-          virtualenv: 'present',
+          venv: 'present',
         )
       end
       it 'installs dependencies' do
@@ -94,29 +98,14 @@ describe 'patroni' do
         )
       end
 
-      case os_facts[:os]['family']
-      when 'RedHat'
-        it do
-          is_expected.to contain_python__virtualenv('patroni').with(
-            version: platform_data(platform, :python_venv_version),
-            venv_dir: '/opt/app/patroni',
-            virtualenv: 'virtualenv-3',
-            systempkgs: 'true',
-            distribute: 'false',
-            environment: ['PIP_PREFIX=/opt/app/patroni'],
-            require: 'Exec[patroni-mkdir-install_dir]',
-          )
-        end
-      when 'Debian'
-        it do
-          is_expected.to contain_python__pyvenv('patroni').with(
-            version: platform_data(platform, :python_venv_version),
-            venv_dir: '/opt/app/patroni',
-            systempkgs: 'true',
-            environment: ['PIP_PREFIX=/opt/app/patroni'],
-            require: 'Exec[patroni-mkdir-install_dir]',
-          )
-        end
+      it do
+        is_expected.to contain_python__pyvenv('patroni').with(
+          version: platform_data(platform, :python_venv_version),
+          venv_dir: '/opt/app/patroni',
+          systempkgs: 'true',
+          environment: ['PIP_PREFIX=/opt/app/patroni'],
+          require: 'Exec[patroni-mkdir-install_dir]',
+        )
       end
 
       it do
@@ -376,21 +365,11 @@ describe 'patroni' do
             creates: '/usr/local/patroni',
           )
         end
-        case os_facts[:os]['family']
-        when 'RedHat'
-          it do
-            is_expected.to contain_python__virtualenv('patroni').with(
-              venv_dir: '/usr/local/patroni',
-              environment: ['PIP_PREFIX=/usr/local/patroni'],
-            )
-          end
-        when 'Debian'
-          it do
-            is_expected.to contain_python__pyvenv('patroni').with(
-              venv_dir: '/usr/local/patroni',
-              environment: ['PIP_PREFIX=/usr/local/patroni'],
-            )
-          end
+        it do
+          is_expected.to contain_python__pyvenv('patroni').with(
+            venv_dir: '/usr/local/patroni',
+            environment: ['PIP_PREFIX=/usr/local/patroni'],
+          )
         end
         it do
           is_expected.to contain_python__pip('patroni').with(

@@ -1,17 +1,9 @@
 .github/workflows/ci.yaml:
   unit_name: Puppet ${{ matrix.puppet }} (Ruby ${{ matrix.ruby }} fixtures=${{ matrix.fixtures }})
   unit_includes:
-    - ruby: '2.4.9'
-      puppet: '5'
+    - ruby: '3.2.0'
+      puppet: '8'
       fixtures: .fixtures.yml
-      allow_failure: false
-    - ruby: '2.5.7'
-      puppet: '6'
-      fixtures: .fixtures-latest.yml
-      allow_failure: true
-    - ruby: '2.7.0'
-      puppet: '7'
-      fixtures: .fixtures-latest.yml
       allow_failure: true
   acceptance_matrix:
     set:
@@ -20,9 +12,9 @@
       - debian-9
       - debian-10
       - ubuntu-1804
+      - alma-9
     puppet:
-      - puppet6
-      - puppet7
+      - puppet8
 .travis.yml:
   delete: true
 .gitlab-ci.yml:

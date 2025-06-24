@@ -447,9 +447,9 @@ class patroni (
   if $install_method == 'pip' {
     if $manage_python {
       class { 'python':
-        version    => $python_class_version,
-        dev        => 'present',
-        virtualenv => 'present',
+        version => $python_class_version,
+        dev     => 'present',
+        venv    => 'present',
       }
     }
 
@@ -460,26 +460,13 @@ class patroni (
       creates => $install_dir,
     }
 
-    if $facts['os']['family'] == 'RedHat' {
-      python::virtualenv { 'patroni':
-        version     => $python_venv_version,
-        venv_dir    => $install_dir,
-        virtualenv  => 'virtualenv-3',
-        systempkgs  => true,
-        distribute  => false,
-        environment => ["PIP_PREFIX=${install_dir}"],
-        require     => Exec['patroni-mkdir-install_dir'],
-      }
-    }
 
-    if $facts['os']['family'] == 'Debian' {
-      python::pyvenv { 'patroni':
-        version     => $python_venv_version,
-        venv_dir    => $install_dir,
-        systempkgs  => true,
-        environment => ["PIP_PREFIX=${install_dir}"],
-        require     => Exec['patroni-mkdir-install_dir'],
-      }
+    python::pyvenv { 'patroni':
+      version     => $python_venv_version,
+      venv_dir    => $install_dir,
+      systempkgs  => true,
+      environment => ["PIP_PREFIX=${install_dir}"],
+      require     => Exec['patroni-mkdir-install_dir'],
     }
 
     if $custom_pip_provider {
