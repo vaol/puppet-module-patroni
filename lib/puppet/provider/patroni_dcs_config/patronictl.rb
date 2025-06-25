@@ -28,7 +28,7 @@ Puppet::Type.type(:patroni_dcs_config).provide(:patronictl, parent: Puppet::Prov
 
   def self.prefetch(resources)
     configs = instances
-    resources.keys.each do |name|
+    resources.each_key do |name|
       if provider = configs.find { |c| c.name == name } # rubocop:disable AssignmentInCondition
         resources[name].provider = provider
       end
