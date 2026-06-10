@@ -59,7 +59,7 @@ describe 'patroni' do
         is_expected.to contain_package('patroni-postgresql-devel-package').with(
           ensure: 'present',
           require: platform_data(platform, :postgres_repo_require),
-          before: ['Service[patroni]', 'Python::Pip[psycopg2]'],
+          before: ['Service[patroni]', 'Python::Pip[psycopg2-binary]'],
         )
       end
       it do
@@ -117,7 +117,7 @@ describe 'patroni' do
         )
       end
       it do
-        is_expected.to contain_python__pip('psycopg2').with(
+        is_expected.to contain_python__pip('psycopg2-binary').with(
           virtualenv: '/opt/app/patroni',
           before: 'Python::Pip[patroni]',
           environment: ['PIP_PREFIX=/opt/app/patroni'],
@@ -161,6 +161,7 @@ describe 'patroni' do
             'synchronous_mode' => false,
             'synchronous_mode_strict' => false,
             'postgresql' => {
+              'keep_existing_recovery_conf' => true,
               'use_pg_rewind' => true,
               'use_slots' => true,
             },
@@ -183,6 +184,13 @@ describe 'patroni' do
         expected_config = {
           'scope' => 'testscope',
           'namespace' => '/service/',
+          'log' => {
+            'dateformat' => '%Y-%m-%d %H:%M:%S',
+            'dir' => '/var/log/patroni',
+            'file_num' => 10,
+            'file_size' => 50_000_000,
+            'level' => 'INFO',
+          },
           'name' => 'localhost',
           'bootstrap' => {
             'dcs' => {
@@ -194,6 +202,7 @@ describe 'patroni' do
               'synchronous_mode' => false,
               'synchronous_mode_strict' => false,
               'postgresql' => {
+                'keep_existing_recovery_conf' => true,
                 'use_pg_rewind' => true,
                 'use_slots' => true,
               },
@@ -222,11 +231,9 @@ describe 'patroni' do
             'authentication' => {
               'superuser' => {
                 'username' => 'postgres',
-                'password' => 'changeme',
               },
               'replication' => {
                 'username' => 'rep_user',
-                'password' => 'changeme',
               },
             },
             'create_replica_methods' => ['basebackup'],
@@ -252,7 +259,7 @@ describe 'patroni' do
         expected_lines = [
           '[Unit]',
           'Description=PostgreSQL high-availability manager',
-          'After=syslog.target',
+          'After=syslog.target etcd.service remote-fs.target local-fs.target',
           'After=network-online.target',
           '[Service]',
           'Type=simple',
@@ -290,6 +297,20 @@ describe 'patroni' do
         is_expected.to contain_patronictl_config('puppet').with(
           path: '/opt/app/patroni/bin/patronictl',
           config: platform_data(platform, :config_path),
+        )
+      end
+
+      it do
+        is_expected.to contain_file('/usr/bin/patronictl').with(
+          ensure: 'link',
+          target: '/opt/app/patroni/bin/patronictl',
+        )
+      end
+
+      it do
+        is_expected.to contain_file_line('patroni config file as ENV').with(
+          path: '/home/postgres/.bashrc',
+          line: "export PATRONICTL_CONFIG_FILE=#{platform_data(platform, :config_path)}",
         )
       end
 
@@ -378,7 +399,7 @@ describe 'patroni' do
           )
         end
         it do
-          is_expected.to contain_python__pip('psycopg2').with(
+          is_expected.to contain_python__pip('psycopg2-binary').with(
             virtualenv: '/usr/local/patroni',
             environment: ['PIP_PREFIX=/usr/local/patroni'],
           )

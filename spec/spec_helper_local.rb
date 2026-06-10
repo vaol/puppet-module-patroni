@@ -1,5 +1,3 @@
-require 'coveralls'
-Coveralls.wear!
 
 def platform_data(p, d)
   data = {

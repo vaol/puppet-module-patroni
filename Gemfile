@@ -38,7 +38,6 @@ group :development do
   gem "rubocop-rspec", '= 2.19.0',               require: false
   gem "rb-readline", '= 0.5.5',                  require: false, platforms: [:mswin, :mingw, :x64_mingw]
   gem 'net-ftp',                                 require: false
-  gem 'coveralls',                               require: false
 end
 group :development, :release_prep do
   gem "puppet-strings", '~> 4.0',         require: false

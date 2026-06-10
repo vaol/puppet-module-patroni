@@ -428,7 +428,7 @@ class patroni (
       before  => Service['patroni'],
     }
     if $install_method == 'pip' {
-      Package['patroni-postgresql-devel-package'] -> Python::Pip['psycopg2']
+      Package['patroni-postgresql-devel-package'] -> Python::Pip['psycopg2-binary']
     }
 
     if $facts['os']['family'] == 'RedHat' and $manage_postgresql_repo and $default_bin_dir != '/usr/bin' {
