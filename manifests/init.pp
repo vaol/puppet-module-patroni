@@ -574,7 +574,7 @@ class patroni (
   }
 
   file_line { 'patroni config file as ENV':
-    path      => '/home/postgres/.bashrc',
-    line      => "export PATRONICTL_CONFIG_FILE=${config_path}",
+    path => '/home/postgres/.bashrc',
+    line => "export PATRONICTL_CONFIG_FILE=${config_path}",
   }
 }
